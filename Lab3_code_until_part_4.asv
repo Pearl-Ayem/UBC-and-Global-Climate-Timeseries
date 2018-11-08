@@ -99,10 +99,18 @@ legend('<=1985','>1985')
 
 %% Part 2: Decadal Timescale Trends
 
-Table1Global=zeros(7,5);
+Table1Global=zeros(8,5);
+
+
 %columns 1,2,3,4,5 are decade (start year), slope,R^2,CI(min),CI(max) respectively
 figure(3)
 n = 1;
+Table1Global(n,1)="Decade start";
+Table1Global(n,2)="slope";
+Table1Global(n,3)="R^2";
+Table1Global(n,4)="CI(min)"
+Table1Global(n,5)="CI(max)";
+
 for i = 1960:10:2020
     subplot(4,2,n)
     m = date>=i-10 & date<i;
@@ -117,8 +125,8 @@ for i = 1960:10:2020
             num2str(round(bint(2,2),3)) ']']) 
         xlabel('Date'); ylabel('Temp Anomaly ({\circ}C)')
         title(['Global Temp Anomaly for ' num2str(i-10) '-' num2str(i)])
-        Table1Global(n,1)=i-10;
-        Table1Global(n,2)=coef(2);
+        Table1Global(8,1)=i-10;
+        Table1Global(8,2)=coef(2);
         Table1Global(n,3)=stats(1);
         Table1Global(n,4)=bint(2,1);
         Table1Global(n,5)=bint(2,2);
@@ -126,9 +134,6 @@ for i = 1960:10:2020
         n = n+1;
 end
 
-
-Table1UBC=zeros(7,5);
-%columns 1,2,3,4,5 are decade (start year), slope,R^2,CI(min),CI(max) respectively
 figure(4)
     n = 1;
 for i = 1960:10:2020
@@ -145,11 +150,6 @@ for i = 1960:10:2020
             num2str(round(bint(2,2),3)) ']']) 
         xlabel('Date'); ylabel('Temp Anomaly ({\circ}C)')
         title(['UBC Temp Anomaly for ' num2str(i-10) '-' num2str(i)])
-        Table1UBC(n,1)=i-10;
-        Table1UBC(n,2)=coef(2);
-        Table1UBC(n,3)=stats(1);
-        Table1UBC(n,4)=bint(2,1);
-        Table1UBC(n,5)=bint(2,2);
         n = n+1;
 end
 
