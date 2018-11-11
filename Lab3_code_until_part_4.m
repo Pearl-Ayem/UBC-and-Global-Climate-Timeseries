@@ -14,11 +14,12 @@ SO2 = data(:,7); % Tg/year, anthropogenic SO2 emissions
 MEI = data(:,8); % Multivariate El Nino Index
 
 %% Part 1: Plot each time series and linear regression of Temp Series
-figure(1)
+figure('pos',[30 30 900 600])
 subplot(421)
     plot(date,ubctanom,'k'); hold on
-    xlabel('Date'); ylabel('Temp Anomaly ({\circ}C)')
-    title('UBC Temperature Anomaly from 1959-2016')
+        xlabel('Date'); ylabel({'Temp ' ,'Anomaly ({\circ}C)'})
+    title({'UBC Temperature Anomaly' ,'from 1959-2016'})
+    axis([1955,2018,-5,6])
     mubc = ~isnan(ubctanom);
     [coef,bint,r,rint,stats] = ...
         regress(ubctanom,[ones(size(ubctanom)) date]);
@@ -28,14 +29,16 @@ subplot(421)
     plot(date(mubc),ubctanomlinfit(mubc),'r'); hold on
 %     plot(date(mubc),ubctanomlinfitbotlim(mubc),'r--'); hold on
 %     plot(date(mubc),ubctanomlinfittoplim(mubc),'r--'); hold on
-    text(1951,5,['Slope = ',num2str(round(coef(2),3)),...
-        ' {\circ}C/yr and R^2=',num2str(round(stats(1),3))...
-        '; 95% conf = [' num2str(round(bint(2,1),3)) ','...
-            num2str(round(bint(2,2),3)) ']']) 
+    text(1956,5.2,['Slope = ',num2str(round(coef(2),3)),...
+        '; R^2=',num2str(round(stats(1),3))...
+        '; conf = [' num2str(round(bint(2,1),3)) ','...
+            num2str(round(bint(2,2),3)) ']'])
+        
 subplot(422)
     plot(date,gtanom,'k'); hold on
-    xlabel('Date'); ylabel('Temp Anomaly (C^{\circ})')
-    title('Global Temperature Anomaly from 1950-2016')
+    xlabel('Date'); ylabel({'Temp ' ,'Anomaly (C^{\circ})'})
+    title({'Global Temperature Anomaly' ,' from 1950-2016'})
+    axis([1950,2018,-1,1.5])
       mgt = ~isnan(gtanom);
       clear bint
     [coef,bint,r,rint,stats] = ...
@@ -47,29 +50,29 @@ subplot(422)
 %     plot(date,gtanomlinfitbotlim,'r--'); hold on
 %     plot(date,gtanomlinfittoplim,'r--'); hold on
     text(1951,1.2,['Slope = ',num2str(round(coef(2),3)),...
-        ' {\circ}C/yr and R^2=',num2str(round(stats(1),3))...
-        '; 95% conf = [' num2str(round(bint(2,1),3)) ','...
+        '; R^2=',num2str(round(stats(1),3))...
+        '; conf = [' num2str(round(bint(2,1),3)) ','...
             num2str(round(bint(2,2),3)) ']']) 
 subplot(423)
     plot(date,TSI,'r'); xlabel('Date');
-    ylabel('Total Solar Irradiance (W/m^2)')
-    title('Total Solar Irradiance from 1950-2016')
+    ylabel({'Total Solar ' ,'Irradiance (W/m^2)'})
+    title({'Total Solar ' ,'Irradiance from 1950-2016'})
 subplot(424)
     plot(date,AOD,'b'); xlabel('Date');
-    ylabel('Aerosol Optical Depth')
-    title('Aerosol Optical Depth from 1950-2016')
+    ylabel('AOD')
+    title({'Aerosol Optical' ,' Depth from 1950-2016'})
 subplot(425)
     plot(date,CO2,'r'); xlabel('Date');
     ylabel('CO_2 (ppm)')
-    title('Atmospheric CO2 from 1950-2016')
+    title({'Atmospheric CO2 ' ,'from 1950-2016'})
 subplot(426)
     plot(date,SO2,'b'); xlabel('Date');
     ylabel('SO_2 (Tg/year)')
-    title('Anthropogenic Atmospheric SO_2 from 1950-2016')
+    title({'Anthropogenic Atmospheric ' ,'SO_2 from 1950-2016'})
 subplot(427)
     plot(date,MEI,'g'); xlabel('Date');
     ylabel('MEI')
-    title('Multivariate El Niño Index from 1950-2016')
+    title({'Multivariate El Niño' ,' Index from 1950-2016'})
     
     
 % Histogram Plots
@@ -164,3 +167,26 @@ m = isnan(ubctanom) | isnan(gtanom);
 [coef,bint,r,rint,stats] = regress(ubctanom(~m),[ones(size(gtanom(~m))) gtanom(~m)]);
 R1 = stats(1)^2; p1 = stats(3);
 text(-0.4,-5,['Correlation = ' num2str(R(2,1)) ' and p-value = ' num2str(p(2,1))]);
+
+
+%% Part 4: Impact of specific forcingon global temperature anomaly
+
+%all_forcings_mask = (isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
+AllForcingsMatrix=[TSI,AOD,CO2,SO2,MEI];
+Table2SimpleLinear = zeros(5,4);
+%rows 1,2,3,4,5 are TSI,AOD,CO2,SO2,MEI respectively
+%columns 1,2,3,4 are slope, CI,CI,coeffecient of determination respectively
+n = 1;
+for forcing = AllForcingsMatrix
+    m = isnan(forcing) | isnan(gtanom);
+    [coef,bint,r,rint,stats] = regress(gtanom(~m),[ones(size(forcing(~m))) forcing(~m)]);
+    Table2SimpleLinear(n,1)= coef(2);
+    Table2SimpleLinear(n,2)=stats(1);
+    Table2SimpleLinear(n,3)=bint(2,1);
+    Table2SimpleLinear(n,4)=bint(2,2);
+    
+    n=n+1;
+end
+
+    
+    
