@@ -190,44 +190,24 @@ end
 
 figure(6)
 subplot(2,1,1)
-mMEIandganom = ~(isnan(MEI) | isnan(gtanom));
+mMEIandganom = isnan(MEI) | isnan(gtanom);
+plot(MEI(~mMEIandganom),gtanom(~mMEIandganom),'k.'); 
 hold on
-plot(MEI(mMEIandganom),gtanom(mMEIandganom),'k.'); 
 xlabel('MEI');
 ylabel('Global Temp Anomaly({\circ}C)');
 title('Global Temp Anomaly VS MEI');
 clear bint
 [coef,bint,r,rint,stats] = regress(gtanom(mMEIandganom),[ones(size(gtanom(mMEIandganom))),MEI(mMEIandganom)]);
-glMEIlinfit = coef(1)+coef(2).*MEI(mMEIandganom);
-glMEIlinfitbotlim = coef(1)+bint(2,1).*MEI(mMEIandganom);
-glMEIlinfittoplim = coef(1)+bint(2,2).*MEI(mMEIandganom);
-plot(MEI(mMEIandganom),glMEIlinfit,'r--'); 
-%plot(MEI(mMEIandganom),glMEIlinfitbotlim,'b--'); hold on
-%plot(MEI(mMEIandganom),glMEIlinfittoplim,'r--'); hold on
-axis([-2.5,3.5,-0.7,1.3])
-text(-2.4,1,['Slope = ',num2str(round(coef(2),3))]) 
-hold off
-
-
-subplot(2,1,2)
-mMEIandubcanom = ~(isnan(MEI) | isnan(ubctanom));
-hold on
-plot(MEI(mMEIandubcanom),ubctanom(mMEIandubcanom),'k.'); 
-xlabel('MEI');
-ylabel('UBC Temp Anomaly({\circ}C)');
-title('UBC Temp Anomaly VS MEI');
-clear bint
-clear coef
-[coef,bint,r,rint,stats] = regress(ubctanom(mMEIandubcanom),[ones(size(ubctanom(mMEIandubcanom))),MEI(mMEIandubcanom)]);
-UBCMEIlinfit = coef(1)+coef(2).*MEI(mMEIandubcanom);
-UBCMEIlinfitbotlim = coef(1)+bint(2,1).*MEI(mMEIandubcanom);
-UBCMEIlinfittoplim = coef(1)+bint(2,2).*MEI(mMEIandubcanom);
-plot(MEI(mMEIandubcanom),UBCMEIlinfit,'r--'); 
-%plot(MEI(mMEIandubcanom),UBCMEIlinfitbotlim,'b--'); hold on
-%plot(MEI(mMEIandubcanom),UBCMEIlinfittoplim,'r--'); hold on
-axis([-2.2,3.2,-6,6])
-text(-2.1,5,['Slope = ',num2str(round(coef(2),3))]) 
-hold off
+    glMEIlinfit = coef(1)+coef(2).*MEI;
+    glMEIlinfitbotlim = coef(1)+bint(2,1).*date;
+    glMEIlinfittoplim = coef(1)+bint(2,2).*date;
+    plot(MEI(mMEIandganom),glMEIlinfit,'r--'); hold on
+%     plot(MEI(mMEIandganom),glMEIlinfitbotlim,'r--'); hold on
+%     plot(MEI(mMEIandganom),glMEIlinfittoplim,'r--'); hold on
+    text(1951,1.2,['Slope = ',num2str(round(coef(2),3)),...
+        '; R^2=',num2str(round(stats(1),3))...
+        '; conf = [' num2str(round(bint(2,1),3)) ','...
+            num2str(round(bint(2,2),3)) ']']) 
 
     
     
