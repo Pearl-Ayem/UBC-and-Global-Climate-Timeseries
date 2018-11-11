@@ -171,43 +171,66 @@ text(-0.4,-5,['Correlation = ' num2str(R(2,1)) ' and p-value = ' num2str(p(2,1))
 
 %% Part 4: Impact of specific forcingon global temperature anomaly
 
-%all_forcings_mask = (isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
 AllForcingsMatrix=[TSI,AOD,CO2,SO2,MEI];
 Table2SimpleLinear = zeros(5,4);
 %rows 1,2,3,4,5 are TSI,AOD,CO2,SO2,MEI respectively
 %columns 1,2,3,4 are slope, CI,CI,coeffecient of determination respectively
 n = 1;
 for forcing = AllForcingsMatrix
-    mMEIandganom = isnan(forcing) | isnan(gtanom);
-    [coef,bint,r,rint,stats] = regress(gtanom(~mMEIandganom),[ones(size(forcing(~mMEIandganom))) forcing(~mMEIandganom)]);
+    mindependentForcing = isnan(forcing) | isnan(gtanom);
+    [coef,bint,r,rint,stats] = regress(gtanom(~mindependentForcing),[ones(size(forcing(~mindependentForcing))) forcing(~mindependentForcing)]);
     Table2SimpleLinear(n,1)= coef(2);
     Table2SimpleLinear(n,2)=stats(1);
     Table2SimpleLinear(n,3)=bint(2,1);
     Table2SimpleLinear(n,4)=bint(2,2);
-    
     n=n+1;
 end
 
 figure(6)
 subplot(2,1,1)
-mMEIandganom = isnan(MEI) | isnan(gtanom);
-plot(MEI(~mMEIandganom),gtanom(~mMEIandganom),'k.'); 
+mMEIandganom = ~(isnan(MEI) | isnan(gtanom));
 hold on
+plot(MEI(mMEIandganom),gtanom(mMEIandganom),'k.'); 
 xlabel('MEI');
 ylabel('Global Temp Anomaly({\circ}C)');
 title('Global Temp Anomaly VS MEI');
 clear bint
 [coef,bint,r,rint,stats] = regress(gtanom(mMEIandganom),[ones(size(gtanom(mMEIandganom))),MEI(mMEIandganom)]);
-    glMEIlinfit = coef(1)+coef(2).*MEI;
-    glMEIlinfitbotlim = coef(1)+bint(2,1).*date;
-    glMEIlinfittoplim = coef(1)+bint(2,2).*date;
-    plot(MEI(mMEIandganom),glMEIlinfit,'r--'); hold on
-%     plot(MEI(mMEIandganom),glMEIlinfitbotlim,'r--'); hold on
-%     plot(MEI(mMEIandganom),glMEIlinfittoplim,'r--'); hold on
-    text(1951,1.2,['Slope = ',num2str(round(coef(2),3)),...
-        '; R^2=',num2str(round(stats(1),3))...
-        '; conf = [' num2str(round(bint(2,1),3)) ','...
-            num2str(round(bint(2,2),3)) ']']) 
+glMEIlinfit = coef(1)+coef(2).*MEI(mMEIandganom);
+glMEIlinfitbotlim = coef(1)+bint(2,1).*MEI(mMEIandganom);
+glMEIlinfittoplim = coef(1)+bint(2,2).*MEI(mMEIandganom);
+plot(MEI(mMEIandganom),glMEIlinfit,'r--'); 
+%plot(MEI(mMEIandganom),glMEIlinfitbotlim,'b--'); hold on
+%plot(MEI(mMEIandganom),glMEIlinfittoplim,'r--'); hold on
+axis([-2.5,3.5,-0.7,1.3])
+text(-2.4,1,['Slope = ',num2str(round(coef(2),3))]) 
+hold off
 
-    
-    
+
+subplot(2,1,2)
+mMEIandubcanom = ~(isnan(MEI) | isnan(ubctanom));
+hold on
+plot(MEI(mMEIandubcanom),ubctanom(mMEIandubcanom),'k.'); 
+xlabel('MEI');
+ylabel('UBC Temp Anomaly({\circ}C)');
+title('UBC Temp Anomaly VS MEI');
+clear bint
+clear coef
+[coef,bint,r,rint,stats] = regress(ubctanom(mMEIandubcanom),[ones(size(ubctanom(mMEIandubcanom))),MEI(mMEIandubcanom)]);
+UBCMEIlinfit = coef(1)+coef(2).*MEI(mMEIandubcanom);
+UBCMEIlinfitbotlim = coef(1)+bint(2,1).*MEI(mMEIandubcanom);
+UBCMEIlinfittoplim = coef(1)+bint(2,2).*MEI(mMEIandubcanom);
+plot(MEI(mMEIandubcanom),UBCMEIlinfit,'r--'); 
+%plot(MEI(mMEIandubcanom),UBCMEIlinfitbotlim,'b--'); hold on
+%plot(MEI(mMEIandubcanom),UBCMEIlinfittoplim,'r--'); hold on
+axis([-2.2,3.2,-6,6])
+text(-2.1,5,['Slope = ',num2str(round(coef(2),3))]) 
+hold off
+
+%MULTILINEAR REGRESSION
+Table2Multi = zeros(7,3);
+%rows 1,2,3,4,5 are TSI,AOD,CO2,SO2,MEI respectively
+%row 6 is y intercept
+%row 7 is R^2
+all_forcings_mask = ~(isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
+[coef,bint,r,rint,stats] = regress(gtanom(all_forcings_mask),[ones(size(TSI(all_forcings_mask))) TSI(all_forcings_mask) AOD(all_forcings_mask) CO2(all_forcings_mask) SO2(all_forcings_mask) MEI(all_forcings_mask) ]); 

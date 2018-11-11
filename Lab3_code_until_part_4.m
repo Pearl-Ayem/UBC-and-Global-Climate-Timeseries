@@ -102,8 +102,8 @@ legend('<=1985','>1985')
 
 %% Part 2: Decadal Timescale Trends
 
-Table1Global=zeros(7,5);
-%columns 1,2,3,4,5 are decade (start year), slope,R^2,CI(min),CI(max) respectively
+Table1Global=zeros(7,4);
+%columns 1,2,3,4,5 are decade (start year), slope,CI(min),CI(max) respectively
 figure(3)
 n = 1;
 for i = 1960:10:2020
@@ -122,16 +122,15 @@ for i = 1960:10:2020
         title(['Global Temp Anomaly for ' num2str(i-10) '-' num2str(i)])
         Table1Global(n,1)=i-10;
         Table1Global(n,2)=coef(2);
-        Table1Global(n,3)=stats(1);
-        Table1Global(n,4)=bint(2,1);
-        Table1Global(n,5)=bint(2,2);
+        Table1Global(n,3)=bint(2,1);
+        Table1Global(n,4)=bint(2,2);
         
         n = n+1;
 end
 
 
-Table1UBC=zeros(7,5);
-%columns 1,2,3,4,5 are decade (start year), slope,R^2,CI(min),CI(max) respectively
+Table1UBC=zeros(7,4);
+%columns 1,2,3,4,5 are decade (start year), slope,CI(min),CI(max) respectively
 figure(4)
     n = 1;
 for i = 1960:10:2020
@@ -150,9 +149,8 @@ for i = 1960:10:2020
         title(['UBC Temp Anomaly for ' num2str(i-10) '-' num2str(i)])
         Table1UBC(n,1)=i-10;
         Table1UBC(n,2)=coef(2);
-        Table1UBC(n,3)=stats(1);
-        Table1UBC(n,4)=bint(2,1);
-        Table1UBC(n,5)=bint(2,2);
+        Table1UBC(n,3)=bint(2,1);
+        Table1UBC(n,4)=bint(2,2);
         n = n+1;
 end
 
@@ -171,20 +169,19 @@ text(-0.4,-5,['Correlation = ' num2str(R(2,1)) ' and p-value = ' num2str(p(2,1))
 
 %% Part 4: Impact of specific forcingon global temperature anomaly
 
-%all_forcings_mask = (isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
 AllForcingsMatrix=[TSI,AOD,CO2,SO2,MEI];
 Table2SimpleLinear = zeros(5,4);
 %rows 1,2,3,4,5 are TSI,AOD,CO2,SO2,MEI respectively
 %columns 1,2,3,4 are slope, CI,CI,coeffecient of determination respectively
 n = 1;
 for forcing = AllForcingsMatrix
-    mMEIandganom = isnan(forcing) | isnan(gtanom);
-    [coef,bint,r,rint,stats] = regress(gtanom(~mMEIandganom),[ones(size(forcing(~mMEIandganom))) forcing(~mMEIandganom)]);
+    mindependentForcing = isnan(forcing) | isnan(gtanom);
+    [coef,bint,r,rint,stats] = regress(gtanom(~mindependentForcing),[ones(size(forcing(~mindependentForcing))) forcing(~mindependentForcing)]);
     Table2SimpleLinear(n,1)= coef(2);
-    Table2SimpleLinear(n,2)=stats(1);
-    Table2SimpleLinear(n,3)=bint(2,1);
-    Table2SimpleLinear(n,4)=bint(2,2);
-    
+    Table2SimpleLinear(n,2)=bint(2,1);
+    Table2SimpleLinear(n,3)=bint(2,2);
+    Table2SimpleLinear(n,4)=stats(1);
+
     n=n+1;
 end
 
@@ -229,5 +226,36 @@ axis([-2.2,3.2,-6,6])
 text(-2.1,5,['Slope = ',num2str(round(coef(2),3))]) 
 hold off
 
-    
-    
+%MULTILINEAR REGRESSION
+Table2Multi = zeros(7,3);
+clear bint
+clear coef
+%rows 2,3,4,5,6 are TSI,AOD,CO2,SO2,MEI respectively
+%row 1 is y intercept
+%row 7 is R^2
+%columns 1,2,3 are slope, CI,CI respectively
+
+
+all_forcings_mask = ~(isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
+[coef,bint,r,rint,stats] = regress(gtanom(all_forcings_mask),[ones(size(TSI(all_forcings_mask))) TSI(all_forcings_mask) AOD(all_forcings_mask) CO2(all_forcings_mask) SO2(all_forcings_mask) MEI(all_forcings_mask) ]); 
+Table2Multi(1,1)=coef(1);
+Table2Multi(2,1)=coef(2);
+Table2Multi(3,1)=coef(3);
+Table2Multi(4,1)=coef(4);
+Table2Multi(5,1)=coef(5);
+Table2Multi(6,1)=coef(6);
+
+Table2Multi(1,2)=bint(1,1);
+Table2Multi(1,3)=bint(1,2);
+Table2Multi(2,2)=bint(2,1);
+Table2Multi(2,3)=bint(2,2);
+Table2Multi(3,2)=bint(3,1);
+Table2Multi(3,3)=bint(3,2);
+Table2Multi(4,2)=bint(4,1);
+Table2Multi(4,3)=bint(4,2);
+Table2Multi(5,2)=bint(5,1);
+Table2Multi(5,3)=bint(5,2);
+Table2Multi(6,2)=bint(6,1);
+Table2Multi(6,3)=bint(6,2);
+
+Table2Multi(7,1)=stats(1);
