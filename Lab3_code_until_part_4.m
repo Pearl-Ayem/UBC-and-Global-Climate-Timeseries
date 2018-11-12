@@ -226,6 +226,10 @@ axis([-2.2,3.2,-6,6])
 text(-2.1,5,['Slope = ',num2str(round(coef(2),3))]) 
 hold off
 
+
+%% Part 5: Combined impacts of multipleforcingon global temperature anomaly
+
+
 %MULTILINEAR REGRESSION
 Table2Multi = zeros(7,3);
 clear bint
@@ -235,9 +239,9 @@ clear coef
 %row 7 is R^2
 %columns 1,2,3 are slope, CI,CI respectively
 
-
 all_forcings_mask = ~(isnan(AOD) |isnan(CO2) |isnan(SO2) |isnan(MEI) |isnan(TSI) | isnan(gtanom));
-[coef,bint,r,rint,stats] = regress(gtanom(all_forcings_mask),[ones(size(TSI(all_forcings_mask))) TSI(all_forcings_mask) AOD(all_forcings_mask) CO2(all_forcings_mask) SO2(all_forcings_mask) MEI(all_forcings_mask) ]); 
+bigX=[ones(size(TSI(all_forcings_mask))) TSI(all_forcings_mask) AOD(all_forcings_mask) CO2(all_forcings_mask) SO2(all_forcings_mask) MEI(all_forcings_mask) ];
+[coef,bint,r,rint,stats] = regress(gtanom(all_forcings_mask),bigX); 
 Table2Multi(1,1)=coef(1);
 Table2Multi(2,1)=coef(2);
 Table2Multi(3,1)=coef(3);
@@ -259,3 +263,18 @@ Table2Multi(6,2)=bint(6,1);
 Table2Multi(6,3)=bint(6,2);
 
 Table2Multi(7,1)=stats(1);
+
+TpredAllForcings = bigX*coef;
+[coef,bint,r,rint,stats] = regress(gtanom,[ones(size(gtanom)),TpredAllForcings]); 
+
+figure(7)
+plot(TpredAllForcings,gtanom,'b.','MarkerSize',8);
+hold on
+plot(gtanom,gtanom,'r--','LineWidth',3);
+title('Observed temp VS predicted temp');
+xlabel('Predicted temp ({\circ}C)');
+ylabel('Observed temp ({\circ}C)');
+text(-0.3,1,['Coeff of determination = ',num2str(stats(1))]); 
+hold off
+
+%% Part 6: What can we conclude?
