@@ -164,7 +164,7 @@ mMEIandganom = isnan(ubctanom) | isnan(gtanom);
 [R,p] = corrcoef(ubctanom(~mMEIandganom),gtanom(~mMEIandganom));
 [coef,bint,r,rint,stats] = regress(ubctanom(~mMEIandganom),[ones(size(gtanom(~mMEIandganom))) gtanom(~mMEIandganom)]);
 R1 = stats(1)^2; p1 = stats(3);
-text(-0.4,-5,['Correlation = ' num2str(R(2,1)) ' and p-value = ' num2str(p(2,1))]);
+text(-0.4,-5,['Correlation Coefficient = ' num2str(R(2,1)) '; p-value = ' num2str(p(2,1))]);
 
 
 %% Part 4: Impact of specific forcingon global temperature anomaly
@@ -278,3 +278,47 @@ text(-0.3,1,['Coeff of determination = ',num2str(stats(1))]);
 hold off
 
 %% Part 6: What can we conclude?
+dummyData = xlsread('dummyvariables_lab3.xlsx');
+donaldAge=dummyData(:,1);
+trunacatedCO2=dummyData(:,3);
+trunacatedTemp=dummyData(:,4);
+completeCO2=dummyData(:,5);
+completeTemp=dummyData(:,6);
+mask = ~(isnan(donaldAge)|isnan(gtanom));
+[R,p]=corrcoef(donaldAge(mask),gtanom(mask));
+
+figure(8)
+plot(donaldAge(mask),gtanom(mask));
+title("Global mean temp anomaly VS Donald Trump's age");
+xlabel("Donald Trump's age (years)");
+ylabel('Global Temp Anomaly({\circ}C)');
+text(1,1.1,['Correlation Coefficient = ' num2str(R(2,1)) '; p-value = ' num2str(p(2,1))]);
+
+
+mask = ~(isnan(trunacatedCO2)|isnan(trunacatedTemp));
+[coef,bint,r,rint,stats] = regress(trunacatedCO2(mask),[ones(size(trunacatedCO2(mask))),trunacatedTemp(mask)]);
+
+figure 
+subplot(211)
+hold on
+plot(trunacatedTemp(mask),trunacatedCO2(mask), 'r.', 'Markersize', 10);
+title("Trunacated CO2 VS Trunacated Temp");
+ylabel("CO2 (ppm)");
+xlabel('Global Temp Anomaly({\circ}C)');
+text(-1.9,450,['R^2 = ' num2str(stats(1)) '; p-value = ' num2str(stats(3))]);
+fit = coef(1)+coef(2).*trunacatedTemp(mask);
+plot(trunacatedTemp(mask),fit);
+axis([-2,4,250,500]);
+
+%y=mx+b, so x=(y-b)/m
+subplot(212)
+hold on
+plot(completeCO2, completeTemp, 'r.', 'Markersize', 10);
+title("Complete CO2 VS Complete Temp");
+xlabel("CO2 (ppm)");
+ylabel('Global Temp Anomaly({\circ}C)');
+%text(-1.9,450,['R^2 = ' num2str(stats(1)) '; p-value = ' num2str(stats(3))]);
+fit = (completeCO2-coef(1))/coef(2);
+plot(completeCO2,fit);
+legend('predicted temp vs CO2','Given Temp vs CO2');
+axis([290,710,-3,5]);
