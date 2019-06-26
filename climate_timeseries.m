@@ -2,7 +2,7 @@ clear
 close all
 clc
 
-[data txt raw] = xlsread('lab3_data.xlsx');
+[data txt raw] = xlsread('data.xlsx');
 
 date = data(:,1);
 ubctanom = data(:,2); % Celsius, UBC temp anomaly
@@ -13,7 +13,7 @@ CO2 = data(:,6); % ppm, atmospheric CO2 concentration
 SO2 = data(:,7); % Tg/year, anthropogenic SO2 emissions
 MEI = data(:,8); % Multivariate El Nino Index
 
-%% Part 1: Plot each time series and linear regression of Temp Series
+%% Plot each time series and linear regression of Temp Series
 figure('pos',[30 30 900 600])
 subplot(421)
     plot(date,ubctanom,'k'); hold on
@@ -75,7 +75,7 @@ subplot(427)
     title({'Multivariate El Niño' ,' Index from 1950-2016'})
     
     
-% Histogram Plots
+%% Histogram Plots
 
 m1 = date <= 1985;
 m2 = date > 1985;
@@ -100,7 +100,7 @@ histogram(gtanom(m2),linspace(min(gtanom),max(gtanom),numbins),...
     'normalization','probability');
 legend('<=1985','>1985')
 
-%% Part 2: Decadal Timescale Trends
+%% Decadal Timescale Trends
 
 Table1Global=zeros(7,4);
 %columns 1,2,3,4,5 are decade (start year), slope,CI(min),CI(max) respectively
@@ -155,7 +155,7 @@ for i = 1960:10:2020
 end
 
 
-%% Part 3: Local vs. Global Temp
+%% Local vs. Global Temp
 
 figure(5)
 plot(gtanom,ubctanom,'k.'); hold on
@@ -167,7 +167,7 @@ R1 = stats(1)^2; p1 = stats(3);
 text(-0.4,-5,['Correlation Coefficient = ' num2str(R(2,1)) '; p-value = ' num2str(p(2,1))]);
 
 
-%% Part 4: Impact of specific forcingon global temperature anomaly
+%% Impact of forcing on global temperature anomaly
 
 AllForcingsMatrix=[TSI,AOD,CO2,SO2,MEI];
 Table2SimpleLinear = zeros(5,4);
@@ -227,7 +227,7 @@ text(-2.1,5,['Slope = ',num2str(round(coef(2),3))])
 hold off
 
 
-%% Part 5: Combined impacts of multipleforcingon global temperature anomaly
+%% Combined impacts of multiple forcing on global temperature anomaly
 
 
 %MULTILINEAR REGRESSION
@@ -277,8 +277,8 @@ ylabel('Observed temp ({\circ}C)');
 text(-0.3,1,['Coeff of determination = ',num2str(stats(1))]); 
 hold off
 
-%% Part 6: What can we conclude?
-dummyData = xlsread('dummyvariables_lab3.xlsx');
+%% Dummy Variable 
+dummyData = xlsread('dummyvariables.xlsx');
 donaldAge=dummyData(:,1);
 trunacatedCO2=dummyData(:,3);
 trunacatedTemp=dummyData(:,4);
